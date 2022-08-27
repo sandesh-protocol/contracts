@@ -2,20 +2,21 @@
 pragma solidity ^0.8.9;
 
 library Strings {
-    function bytes32ToString(bytes memory _bytes32)
-        public
-        pure
-        returns (string memory)
-    {
-        uint8 i = 0;
-        while (i < 32 && _bytes32[i] != 0) {
-            i++;
+    function toAsciiString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint256 i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint256(uint160(x)) / (2**(8 * (19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2 * i] = char(hi);
+            s[2 * i + 1] = char(lo);
         }
-        bytes memory bytesArray = new bytes(i);
-        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
-            bytesArray[i] = _bytes32[i];
-        }
-        return string(bytesArray);
+        return string(s);
+    }
+
+    function char(bytes1 b) internal pure returns (bytes1 c) {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
     }
 
     function concat(string memory _base, string memory _value)
@@ -88,10 +89,10 @@ contract Sandesh {
         pure
         returns (string[2] memory)
     {
-        bytes memory kSenderHash = abi.encodePacked(sender);
-        bytes memory kRecieverHash = abi.encodePacked(reciever);
-        string memory senderHash = Strings.bytes32ToString(kSenderHash);
-        string memory recieverHash = Strings.bytes32ToString(kRecieverHash);
+        // bytes memory kSenderHash = abi.encodePacked(sender);
+        // bytes memory kRecieverHash = abi.encodePacked(reciever);
+        string memory senderHash = Strings.toAsciiString(sender);
+        string memory recieverHash = Strings.toAsciiString(reciever);
 
         string memory conversationId1 = Strings.concat(
             senderHash,
