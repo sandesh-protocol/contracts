@@ -45,6 +45,32 @@ library Strings {
 
         return string(newValue);
     }
+
+    function uint2str(uint256 _i)
+        internal
+        pure
+        returns (string memory _uintAsString)
+    {
+        if (_i == 0) {
+            return "0";
+        }
+        uint256 j = _i;
+        uint256 len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint256 k = len;
+        while (_i != 0) {
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
+    }
 }
 
 contract Sandesh {
@@ -55,6 +81,7 @@ contract Sandesh {
     }
 
     struct Message {
+        string id;
         address to;
         address from;
         string contentCID;
@@ -74,7 +101,7 @@ contract Sandesh {
     mapping(string => bool) private dappRegistry;
 
     constructor() {
-      owner = msg.sender;
+        owner = msg.sender;
     }
 
     // Register a new Dapp for the project.
@@ -133,7 +160,9 @@ contract Sandesh {
             ) {
                 // Conversation already exists.
                 // call for already existing flow.
+                string memory id = Strings.uint2str(block.timestamp);
                 Message memory message = Message(
+                    id,
                     to,
                     msg.sender, // TODO make sure msg.sender is same as address string
                     contentCID,
@@ -158,9 +187,11 @@ contract Sandesh {
             );
             addressToConversations[msg.sender].push(conversation);
             addressToConversations[to].push(conversation);
+            string memory id = Strings.uint2str(block.timestamp);
             Message memory message = Message(
+                id,
                 to,
-                msg.sender, // TODO make sure senderHash is same as address string
+                msg.sender,
                 contentCID,
                 block.timestamp
             );
@@ -169,8 +200,12 @@ contract Sandesh {
         return conversationIds[0];
     }
 
-    function getConversations() public view returns (Conversation[] memory) {
-        return addressToConversations[msg.sender];
+    function getConversations(address addressValue)
+        public
+        view
+        returns (Conversation[] memory)
+    {
+        return addressToConversations[addressValue];
     }
 
     function getMessages(string calldata _conversationId)

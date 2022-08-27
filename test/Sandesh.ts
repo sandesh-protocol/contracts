@@ -14,8 +14,7 @@ describe("Sandesh contract tests", function () {
     const Strings = await ethers.getContractFactory("Strings");
     const strings = await Strings.deploy();
     await strings.deployed();
-    const Sandesh = await ethers.getContractFactory("Sandesh"
-    );
+    const Sandesh = await ethers.getContractFactory("Sandesh");
     sandeshk = await Sandesh.deploy();
   });
 
@@ -48,8 +47,9 @@ describe("Sandesh contract tests", function () {
       })
       describe("For Sender", () => {
         it("Read Conversation", async function () {
+          const [owner] = await ethers.getSigners();
           // Fetching all conversations.
-          const tx = await sandeshk.getConversations();
+          const tx = await sandeshk.getConversations(owner.address);
           expect(tx).to.be.an('array');
           conversationId = tx[0].id
         });
@@ -57,6 +57,7 @@ describe("Sandesh contract tests", function () {
         it("Read Messages", async function () {
           // Fetching all conversations.
           const tx = await sandeshk.getMessages(conversationId);
+          console.log(tx[0])
           expect(tx).to.be.an('array');
         });
 
@@ -66,7 +67,7 @@ describe("Sandesh contract tests", function () {
 
           const [owner, other] = await ethers.getSigners();
           // Fetching all conversations.
-          const tx = await sandeshk.connect(other).getConversations();
+          const tx = await sandeshk.getConversations(other.address);
           expect(tx).to.be.an('array');
           conversationId = tx[0].id
         });
