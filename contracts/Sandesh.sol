@@ -73,7 +73,9 @@ contract Sandesh {
     // Mapping to register Dapps.
     mapping(string => bool) private dappRegistry;
 
-    constructor() {}
+    constructor() {
+      owner = msg.sender;
+    }
 
     // Register a new Dapp for the project.
     // Returns true if registered successfully.
